@@ -8,4 +8,7 @@ test: 9cc
 clean:
 	rm -f 9cc *.o *~ tmp*
 
-.PHONY: test clean
+test_in_docker:
+	./script/docker_run "make test"
+
+.PHONY: test clean test_in_docker

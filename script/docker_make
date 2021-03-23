@@ -1,3 +1,0 @@
-#!/bin/bash -e
-
-docker run --rm -v $(pwd):/c-compilerbook -w /compilerbook compilerbook make $1

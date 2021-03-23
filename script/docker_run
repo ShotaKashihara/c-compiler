@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+docker run --rm -v $(pwd):/c-compilerbook -w /c-compilerbook compilerbook $1
