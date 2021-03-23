@@ -5,6 +5,79 @@
 #include <stdlib.h>
 #include <string.h>
 
+// 抽象構文木(AST)のノードの種類
+typedef enum {
+  ND_ADD,  // +
+  ND_SUB,  // -
+  ND_MUL,  // *
+  ND_DIV,  // /
+  ND_NUM,  // 整数
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node {
+  NodeKind kind;  // ノードの型
+  Node *lhs;      // 左辺
+  Node *rhs;      // 右辺
+  int val;        // kind が ND_NUM の場合のみ使う
+};
+
+// 型が [+-*/] の新しいノードを作成
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
+// 型が ND_NUM の新しいノードを作成
+Node *new_node_num(int val) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->val = val;
+  return node;
+}
+
+// BNF: expr = mul ("+" mul | "-" mul)*
+Node *expr() {
+  Node *node = mul();
+
+  for (;;) {
+    if (consume('+'))
+      node = new_node(ND_ADD, node, mul());
+    else if (consume('-'))
+      node = new_node(ND_SUB, node, mul());
+    else
+      return node;
+  }
+}
+
+// BNF: mul = primary ("*" primary | "/" primary)*
+Node *mul() {
+  Node *node = primary();
+
+  for (;;) {
+    if (consume('*'))
+      node = new_node(ND_MUL, node, primary());
+    else if (consume('/'))
+      node = new_node(ND_DIV, node, primary());
+    else
+      return node;
+  }
+}
+
+// BNF: primary = num | "(" expr ")"
+Node *primary() {
+  if (consume('(')) {
+    Node *node = expr();
+    expect(')');
+    return node;
+  }
+  return new_node_num(expect_number());
+}
+
 // トークンの種類
 typedef enum {
   TK_RESERVED,  // 記号
@@ -77,7 +150,9 @@ int expect_number() {
   return val;
 }
 
-bool at_eof() { return token->kind == TK_EOF; }
+bool at_eof() {
+  return token->kind == TK_EOF;
+}
 
 // 新しいトークンを作成してcurにつなげる
 Token *new_token(TokenKind kind, Token *cur, char *str) {
