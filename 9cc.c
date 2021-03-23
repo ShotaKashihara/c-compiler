@@ -7,19 +7,19 @@
 
 // トークンの種類
 typedef enum {
-  TK_RESERVED, // 記号
-  TK_NUM, // 整数トークン
-  TK_EOF, // 入力の終わりを表すトークン
+  TK_RESERVED,  // 記号
+  TK_NUM,       // 整数トークン
+  TK_EOF,       // 入力の終わりを表すトークン
 } TokenKind;
 
 typedef struct Token Token;
 
 // トークン型
 struct Token {
-  TokenKind kind; // トークンの型
-  Token *next; // 次の入力トークン
-  int val; // kind が TK_NUM の場合、その数値
-  char *str; // トークン文字列
+  TokenKind kind;  // トークンの型
+  Token *next;     // 次の入力トークン
+  int val;         // kind が TK_NUM の場合、その数値
+  char *str;       // トークン文字列
 };
 
 // 現在着目しているトークン
@@ -35,7 +35,7 @@ void error_at(char *loc, char *fmt, ...) {
 
   int pos = loc - user_input;
   fprintf(stderr, "%s\n", user_input);
-  fprintf(stderr, "%*s", pos, " "); // pos個の空白を出力
+  fprintf(stderr, "%*s", pos, " ");  // pos個の空白を出力
   fprintf(stderr, "^ ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
@@ -55,8 +55,7 @@ void error(char *fmt, ...) {
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // True を返す。それ以外の場合には False を返す。
 bool consume(char op) {
-  if (token->kind != TK_RESERVED || token->str[0] != op)
-    return false;
+  if (token->kind != TK_RESERVED || token->str[0] != op) return false;
   token = token->next;
   return true;
 }
@@ -72,16 +71,13 @@ void expect(char op) {
 // 次のトークンが数値の場合、トークンを1つよみ勧めてその数値を返す。
 // それ以外の場合にはエラーを報告する
 int expect_number() {
-  if (token->kind != TK_NUM)
-    error_at(token->str, "数ではありません");
+  if (token->kind != TK_NUM) error_at(token->str, "数ではありません");
   int val = token->val;
   token = token->next;
   return val;
 }
 
-bool at_eof() {
-  return token->kind == TK_EOF;
-}
+bool at_eof() { return token->kind == TK_EOF; }
 
 // 新しいトークンを作成してcurにつなげる
 Token *new_token(TokenKind kind, Token *cur, char *str) {
